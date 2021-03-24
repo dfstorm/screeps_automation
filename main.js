@@ -45,10 +45,10 @@ var Engine = {
             'bootstrap',    // Init tools
             'creepBasic',   // Creep > Basic
             'building',     // Buidling planner
-            'creepBuilder', // Creep > Builder
+            // 'creepBuilder', // Creep > Builder
             'defence',
-            'creepMiner',
-            'creepMover'
+            // 'creepMiner',
+            // 'creepMover'
         ];
         
         // Load each module
