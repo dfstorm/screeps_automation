@@ -99,12 +99,12 @@ var cUtility = {
     
     
     findEnergy(Engine, c) {
-        
-        if (c.room.storage.store[RESOURCE_ENERGY] > 2000) {
+       
+        /* if (c.room.storage.store[RESOURCE_ENERGY] > 2000) {
           if (c.withdraw(c.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             c.moveTo(c.room.storage);
           }
-        } else {
+        } else { */
 
         
 
@@ -151,7 +151,7 @@ var cUtility = {
             }
           }
         
-          }
+          // }
         
     },
     addCount : function (Engine, room, role) {
