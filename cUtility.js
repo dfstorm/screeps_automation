@@ -99,59 +99,97 @@ var cUtility = {
 
 
     findEnergy(Engine, c) {
+        // Low CPU energy seek
+        if (
+            c.memory.findEnergy == undefined ||
+            c.memory.findEnergy == null
+        ) {
+            c.memory.findEnergy = -1;
+            c.memory.findEnergyTarget = null;
+        }
 
-        /* if (c.room.storage.store[RESOURCE_ENERGY] > 2000) {
-          if (c.withdraw(c.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            c.moveTo(c.room.storage);
-          }
-        } else { */
-
-
-
-        let bDropt = false;
-        if (c.memory.savedSpot == null) {
-
-            const targets = c.room.find(FIND_DROPPED_RESOURCES);
-            if(targets.length) {
-                for (let t in targets) {
-                    if (targets[t].amount >= c.store.getFreeCapacity()){
-                        bDropt = true;
-                        if(c.pickup(targets[t]) == ERR_NOT_IN_RANGE) {
-                            c.moveTo(targets[t]);
+        if (c.memory.findEnergyTarget == null && c.memory.savedSpot == null) {
+            switch (c.memory.findEnergy) {
+                case -1: // init
+                    c.memory.findEnergy = 0;
+                    break;
+                case 0: // try main storage
+                    if (c.room.storage == undefined || c.room.storage == null) {
+                        c.memory.findEnergy++;
+                    } else {
+                        if (c.room.storage.store[RESOURCE_ENERGY] > 2000) {
+                            c.memory.findEnergyTarget = c.room.storage.id;
+                        } else {
+                            c.memory.findEnergy++;
                         }
                     }
-                }
-            }}
-
-
-        if (!bDropt) {
-            if (cUtility.isAvailableSpot(Engine, c) && (c.memory.savedSpot == null || c.memory.savedSpot == undefined)) {
-                cUtility.getMeASpot(Engine, c);
+                    break ;
+                case 1: // try a small container
+                    const containersWithEnergy = c.room.find(
+                        FIND_STRUCTURES,
+                        {
+                            filter: (i) =>
+                                i.structureType == STRUCTURE_CONTAINER &&
+                                i.store[
+                                    RESOURCE_ENERGY
+                                    ] >= c.store.getFreeCapacity(
+                                RESOURCE_ENERGY
+                                )
+                        }
+                    );
+                    if (containersWithEnergy.length > 0) {
+                        c.memory.findEnergyTarget = containersWithEnergy[0].id;
+                    } else {
+                        c.memory.findEnergy++;
+                    }
+                    break ;
+                case 2: // try a dropped resource
+                    const targets = c.room.find(FIND_DROPPED_RESOURCES);
+                    if(targets.length > 0) {
+                        c.memory.findEnergyTarget = targets[0].id;
+                    } else {
+                        c.memory.findEnergy++;
+                    }
+                    break ;
+                case 3: // try a spot
+                    if (cUtility.isAvailableSpot(Engine, c) && (c.memory.savedSpot == null || c.memory.savedSpot == undefined)) {
+                        cUtility.getMeASpot(Engine, c);
+                    } else {
+                        c.memory.findEnergy++;
+                    }
+                    break ;
+                default: // reload.
+                    c.memory.findEnergy = 0;
+                    break ;
+            }
+        } else {
+            c.memory.findEnergy = -1;
+            if (c.memory.savedSpot != null) {
+                let source = Game.getObjectById(c.memory.sourceId);
+                c.harvest(source);
+                c.moveTo(c.memory.savedSpot.x, c.memory.savedSpot.y);
             } else {
-                // No spot available or already
+                let oDest = Game.getObjectById(c.memory.findEnergyTarget);
+                let oAction = null;
+                if (c.memory.findEnergy === 0 || c.memory.findEnergy === 1) {
+                    // withdraw
+                    oAction = c.withdraw(oDest, RESOURCE_ENERGY);
+                } else if (c.memory.findEnergy === 2) {
+                    oAction = c.pickup(oDest, RESOURCE_ENERGY);
+                }
+                if (oAction == -9) {
+                    c.moveTo(oDest);
+                } else {
+                    c.memory.findEnergyTarget = null;
+                    c.memory.findEnergy = -1;
+                }
             }
         }
 
-
-
-
-        if (c.memory.savedSpot != null) {
-
-            //console.log("we are using a spot!");
-            let source = Game.getObjectById(c.memory.sourceId);
-            //console.log(source);
-            c.harvest(source);
-            c.moveTo(c.memory.savedSpot.x, c.memory.savedSpot.y);
-
-
-        } else if(!bDropt) {
-            var sources = c.room.find(FIND_SOURCES);
-            if(c.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                c.moveTo(sources[0]);
-            }
+        if (c.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+            c.memory.findEnergyTarget = null;
+            c.memory.findEnergy = -1;
         }
-
-        // }
 
     },
     addCount : function (Engine, room, role) {

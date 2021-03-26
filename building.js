@@ -1153,8 +1153,8 @@ var building = {
     building.planRoadPath(Engine, r);
 
 
-    building.displaySpots(Engine, r);
-    building.displayRoads(Engine, r);
+    // building.displaySpots(Engine, r);
+    // building.displayRoads(Engine, r);
     //if (Game.time % 10) {
     building.autoCleanSpot(Engine, r);
     //}
