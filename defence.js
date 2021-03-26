@@ -3,7 +3,7 @@ var defence = {
   maintenance (Engine, r) {
 
 
-    const maxHits = 20000;
+    const maxHits = 200000;
 
     const targets = Game.rooms[r.name].find(FIND_STRUCTURES, {
       filter: object => object.hits < (object.hitsMax > maxHits ? maxHits : object.hitsMax)
