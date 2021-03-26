@@ -163,7 +163,6 @@ var cUtility = {
                     break ;
             }
         } else {
-            c.memory.findEnergy = -1;
             if (c.memory.savedSpot != null) {
                 let source = Game.getObjectById(c.memory.sourceId);
                 c.harvest(source);
