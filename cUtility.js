@@ -125,7 +125,7 @@ var cUtility = {
                     }
                     break ;
                 case 1: // try a small container
-                    const containersWithEnergy = c.room.find(
+                    const containersWithEnergy = c.pos.findClosestByRange(
                         FIND_STRUCTURES,
                         {
                             filter: (i) =>
@@ -137,16 +137,16 @@ var cUtility = {
                                 )
                         }
                     );
-                    if (containersWithEnergy.length > 0) {
-                        c.memory.findEnergyTarget = containersWithEnergy[0].id;
+                    if (containersWithEnergy != null) {
+                        c.memory.findEnergyTarget = containersWithEnergy.id;
                     } else {
                         c.memory.findEnergy++;
                     }
                     break ;
                 case 2: // try a dropped resource
-                    const targets = c.room.find(FIND_DROPPED_RESOURCES);
-                    if(targets.length > 0) {
-                        c.memory.findEnergyTarget = targets[0].id;
+                    const targets = c.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
+                    if(targets != null) {
+                        c.memory.findEnergyTarget = targets.id;
                     } else {
                         c.memory.findEnergy++;
                     }
