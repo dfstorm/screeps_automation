@@ -1,9 +1,9 @@
 
 var Engine = {
-    
+
     // module Array
     m : Array,
-    
+
     // Run cHook for each module
     cHookRuntime : function (Engine) {
         for (const i in Game.creeps) {
@@ -20,9 +20,9 @@ var Engine = {
             }
         }
     },
-    
+
     // Run rHook for each module
-    rHoohRunetime : function (Engine) { 
+    rHoohRunetime : function (Engine) {
         for (const r in Memory.engine.rooms) {
             for (const m in Engine.m) {
                 if (Engine.m[m].rHook != undefined) {
@@ -36,7 +36,7 @@ var Engine = {
             }
         }
     },
-    
+
     // Init - Entry point
     init : function() {
         // Module array
@@ -45,17 +45,17 @@ var Engine = {
             'bootstrap',    // Init tools
             'creepBasic',   // Creep > Basic
             'building',     // Buidling planner
-            // 'creepBuilder', // Creep > Builder
+            'creepBuilder', // Creep > Builder
             'defence',
-            // 'creepMiner',
-            // 'creepMover'
+            'creepMiner',
+            'creepMover'
         ];
-        
+
         // Load each module
         for (i in rM) {
             Engine.m[rM[i]] = require(rM[i]);
         }
-        
+
         // Init memory base if needed.
         if (Memory.engine == null) {
             Engine.m['bootstrap'].refreshMemory(Engine);
@@ -64,17 +64,17 @@ var Engine = {
 
         // Run cHook
         Engine.cHookRuntime(Engine);
-        
+
         // Run rHook
         Engine.rHoohRunetime(Engine);
-        
+
         // Remove dead creep memory
         if (Game.time % 20) {
-         for(var i in Memory.creeps) {
-              if(!Game.creeps[i]) {
-                  delete Memory.creeps[i];
-              }
-          } 
+            for(var i in Memory.creeps) {
+                if(!Game.creeps[i]) {
+                    delete Memory.creeps[i];
+                }
+            }
         }
     }
 };
