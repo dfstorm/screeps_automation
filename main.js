@@ -46,6 +46,7 @@ var Engine = {
             'creepBasic',   // Creep > Basic
             'building',     // Buidling planner
             'creepBuilder', // Creep > Builder
+            'creepUpdater', // creep > Updater
             'defence',
             'creepMiner',
             'creepMover'
