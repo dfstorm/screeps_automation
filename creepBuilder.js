@@ -20,7 +20,7 @@ var creepBuilder = {
         [WORK,MOVE,CARRY],
         [WORK,MOVE,CARRY]
     ],
-    limits: [0,3,3,3,4,2,2,1],
+    limits: [0,3,3,3,1,1,1,1],
 
     // inner function for the creep
     fnc: function (Engine, c) {

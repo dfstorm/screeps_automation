@@ -44,11 +44,12 @@ var Engine = {
             'cUtility',     // Generic Creep Tools
             'bootstrap',    // Init tools
             'creepBasic',   // Creep > Basic
+            'creepMiner',
             'building',     // Buidling planner
             'creepBuilder', // Creep > Builder
             'creepUpdater', // creep > Updater
             'defence',
-            'creepMiner',
+
             'creepMover'
         ];
 

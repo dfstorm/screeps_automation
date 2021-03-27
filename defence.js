@@ -6,7 +6,7 @@ var defence = {
     const maxHits = 200000;
 
     const targets = Game.rooms[r.name].find(FIND_STRUCTURES, {
-      filter: object => object.hits < (object.hitsMax > maxHits ? maxHits : object.hitsMax)
+      filter: object => object.hits < (object.hitsMax > maxHits ? maxHits : object.hitsMax) && object.structureType != STRUCTURE_WALL
     });
 
     targets.sort((a,b) => a.hits - b.hits);

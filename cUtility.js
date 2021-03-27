@@ -117,7 +117,7 @@ var cUtility = {
                     if (c.room.storage == undefined || c.room.storage == null) {
                         c.memory.findEnergy++;
                     } else {
-                        if (c.room.storage.store[RESOURCE_ENERGY] > 2000) {
+                        if (c.room.storage.store[RESOURCE_ENERGY] > (c.store.getCapacity() * 2)) {
                             c.memory.findEnergyTarget = c.room.storage.id;
                         } else {
                             c.memory.findEnergy++;
@@ -137,6 +137,7 @@ var cUtility = {
                                 )
                         }
                     );
+                    // console.log(containersWithEnergy);
                     if (containersWithEnergy != null) {
                         c.memory.findEnergyTarget = containersWithEnergy.id;
                     } else {
