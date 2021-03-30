@@ -6,13 +6,17 @@ var creepMover = {
     [],
     [],
     [],
-    [ // lvl4
+    [ // lvl4 (20x50 + 300)
       CARRY, CARRY, CARRY, CARRY,
       MOVE, MOVE
     ],
-    [ // lvl 5
-      CARRY, CARRY, CARRY, CARRY,
-      MOVE, MOVE
+    [ // lvl 5 (30x50 + 300) 1800
+      CARRY, CARRY, CARRY, CARRY, CARRY, // 500
+      CARRY, CARRY, CARRY, CARRY, CARRY,
+      CARRY, CARRY, CARRY, CARRY, CARRY, // 500
+      CARRY, CARRY, CARRY, CARRY, CARRY,
+      MOVE, MOVE, MOVE, MOVE, MOVE, // 500
+      MOVE, MOVE, MOVE, MOVE, MOVE
     ],
     [ // lvl6 2300
       CARRY, CARRY, CARRY, CARRY, CARRY,
@@ -41,129 +45,95 @@ var creepMover = {
         c.memory.home,
         c.memory.role
     );
-
-    if (c.memory.mode == 0) {
-      switch (c.memory.seek) {
-        case 0:
-          let nfound =  false;
-          // Is there a capacitor needed energy ?
-          if (c.room.storage.store[RESOURCE_ENERGY] > c.store.getCapacity()) {
-
-            let oTarget = c.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-              filter: (structure) => {
-                return (
-                    (
-                        structure.structureType == STRUCTURE_EXTENSION ||
-                        structure.structureType == STRUCTURE_SPAWN
-                    ) &&
-                    structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-                );
-              }
-            });
-            if (oTarget) {
-              c.memory.sOrigin = c.room.storage.id;
-              c.memory.sDestination = oTarget.id;
-              if (c.store.getUsedCapacity() > 0) {
-                c.memory.mode = 2;
-              } else {
-                c.memory.mode = 1;
-              }
-            } else {
-              nfound = true;
-            }
-          } else {
-            nfound = true;
-          }
-          if (nfound == true) {
-            c.memory.seek++;
-          }
-          break;
-        case 1:
-          // Look if a container need empying
-          //
-          if (
-              c.room.storage == null ||
-              c.room.storage == undefined
-          ) {
-            // No storage
-            c.memory.seek++;
-          } else {
-            const containersWithEnergy = c.room.find(
-                FIND_STRUCTURES,
-                {
-                  filter: (i) =>
-                      i.structureType == STRUCTURE_CONTAINER &&
-                      i.store[
-                          RESOURCE_ENERGY
-                          ] >= c.store.getFreeCapacity(
-                      RESOURCE_ENERGY
-                      )
-                }
-            );
-            //console.log(containersWithEnergy);
-            if (containersWithEnergy.length > 0) {
-              c.memory.sOrigin = containersWithEnergy[0].id;
-              c.memory.sDestination = c.room.storage.id;
-              if (c.store.getUsedCapacity() > 0) {
-                c.memory.mode = 2;
-
-              } else {
-                c.memory.mode = 1;
-              }
-            } else {
-              c.memory.seek++;
-            }
-          }
-          break;
-        default:
-          c.memory.seek = 0;
-          break;
-      }
-    } else {
-      c.memory.seek = 0;
+    /*  Concept
+     *  1- While I have no "task", drone around
+     *  by fuelling the storage.
+     * 
+     * If a capacitor need energy, a task is created.
+     * 
+     * 1- To find the energy, looks for
+     * 
+     *    1- Dropped energy
+     *    2- Containers
+     *
+     * 
+     * */
+    if (c.memory.task == undefined)
+    {
+      c.memory.task == null
     }
-    let oAction = 0;
-
-    switch (c.memory.mode) {
-      case 1:
-        // take it from container
-        oDest = Game.getObjectById(c.memory.sOrigin);
-        oAction = c.withdraw(oDest, RESOURCE_ENERGY);
+    
+    // TODO: Add task attribution here ^^'
+    
+    if(c.store[RESOURCE_ENERGY] == 0) {
+      c.memory.mode = -1;
+    }
+    
+    if (c.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+      c.memory.mode = 1;
+    }
+    
+    switch(c.memory.mode) {
+      case -1:
+        const target = c.pos.findClosestByRange(
+            FIND_STRUCTURES,
+            {
+              filter: (i) =>
+                  i.structureType == STRUCTURE_CONTAINER &&
+                  i.store[
+                      RESOURCE_ENERGY
+                      ] >= c.store.getFreeCapacity(
+                  RESOURCE_ENERGY
+                  )
+            }
+        );
+        if (target != null) {
+          c.memory.target = target.id;
+          c.memory.mode = 0;
+        }
+        break ;
+      case 0:
+        if (c.memory.target == undefined || c.memory.target == null) {
+          c.memory.mode = -1;
+          break ;
+        }
+        const targetObj = Game.getObjectById(c.memory.target);
+        if (targetObj == null) {
+          c.memory.mode = -1;
+          break ;
+        }
+        const oAction =  c.withdraw(targetObj, RESOURCE_ENERGY);
         switch(oAction) {
           case ERR_NOT_IN_RANGE:
-            c.moveTo(oDest);
+            c.moveTo(targetObj);
             break;
           case OK:
           case ERR_FULL:
-            c.memory.mode = 2;
+            c.memory.mode = 1;
             break;
           default:
-            c.memory.mode = 0;
+            c.memory.mode = -1;
             break;
         }
-        break;
-      case 2:
-        // put it in container
-        oDest = Game.getObjectById(c.memory.sDestination);
-        oAction = c.transfer(oDest, RESOURCE_ENERGY);
-        switch (oAction) {
+        break ;
+      case 1:
+        const oActionBis = c.transfer(c.room.storage, RESOURCE_ENERGY);
+        switch (oActionBis) {
           case ERR_NOT_IN_RANGE:
-            c.moveTo(oDest);
+            c.moveTo(c.room.storage);
             break;
           case OK:
           case ERR_FULL:
-            c.memory.mode = 0;
-            c.memory.seek = 0;
+            c.memory.mode = -1;
             break;
           default:
-            c.memory.mode = 0;
+            c.memory.mode = -1;
             break;
         }
-
         break ;
       default:
-        c.memory.mode = 0;
-        break;
+        c.memory.mode = -1;
+        break ;
     }
   },
   cHook: function (Engine, c) {
