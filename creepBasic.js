@@ -12,7 +12,7 @@ var creepBasic = {
         [WORK,MOVE,CARRY],
         [WORK,MOVE,CARRY]
     ],
-    limits: [3,3,5,5,6,6,2,1,1],
+    limits: [3,3,5,5,6,6,6,1,1],
 
     // inner function for the creep
     fnc: function (Engine, c) {
